@@ -1,0 +1,230 @@
+
+using System;
+using System.Windows.Forms;
+using System.Drawing;
+using System.Diagnostics.Eventing.Reader;
+using System.Text.Json.Serialization;
+using System.ComponentModel.DataAnnotations;
+using System.Drawing.Text;
+using System.Globalization;
+
+
+
+Form scherm = new Form();
+scherm.ClientSize = new Size(640, 815);
+scherm.Text = "mandelbrot";
+int schermHoogte = 640;
+int schermBreedte = 815;
+
+
+//aanmaken tekst-invoervelden en bijbehorende labels
+Label midden_x = new Label();
+TextBox invoerMidden_x = new TextBox();
+
+Label midden_y = new Label();
+TextBox invoerMidden_y = new TextBox();
+
+Label schaal = new Label();
+TextBox invoerSchaal = new TextBox();
+
+Label maxAantal = new Label();
+TextBox invoerMaxAantal = new TextBox();
+
+
+scherm.Controls.Add(midden_x);
+scherm.Controls.Add(invoerMidden_x);
+
+scherm.Controls.Add(midden_y);
+scherm.Controls.Add(invoerMidden_y);
+
+scherm.Controls.Add(schaal);
+scherm.Controls.Add(invoerSchaal);
+
+scherm.Controls.Add(maxAantal);
+scherm.Controls.Add(invoerMaxAantal);
+
+// toekennen van eigenschappen aan tekst-invoervelden en bijbehorende labels
+midden_x.Location = new Point(20, 20);
+invoerMidden_x.Location = new Point(120, 18);
+midden_x.Text = "midden x:";
+
+midden_y.Location = new Point(20, 55);
+invoerMidden_y.Location = new Point(120, 53);
+midden_y.Text = "midden y:";
+
+schaal.Location = new Point(20, 90);
+invoerSchaal.Location = new Point(120, 88);
+schaal.Text = "schaal:";
+
+maxAantal.Location = new Point(20, 125);
+invoerMaxAantal.Location = new Point(120, 123);
+maxAantal.Text = "max aantal:";
+
+// knop voor tekenen
+Button knop = new Button();
+knop.Location = new Point(260, 121);
+scherm.Controls.Add(knop);
+knop.Text = "Teken!";
+
+// aanmaken bitmap en grootte bepalen
+Bitmap plaatje = new Bitmap(600, 600);
+int bitmapHoogte = 600;
+int bitmapBreedte = 600;
+
+//Kleurtjes!
+Kleur geel = new Kleur(Kleur.maximaal, Kleur.maximaal, 0);
+Kleur oranje = new Kleur(Kleur.maximaal, 128, 0);
+Kleur rood = new Kleur(Kleur.maximaal, 0,0);
+Kleur blauw = new Kleur(0, 0, Kleur.maximaal);
+Kleur groen = new Kleur(0, Kleur.maximaal, 0);
+Kleur indigo = new Kleur(75, 0, 130);
+Kleur paars = new Kleur(143, 0, 255);
+Kleur wit = new Kleur(0,0,0);
+Kleur zwart = new Kleur(Kleur.maximaal, Kleur.maximaal, Kleur.maximaal);
+
+//tijdelijke waardes
+
+
+// globale minimale en maximale waardes
+double min_x = -2;
+double max_x = 2;
+double min_y = -2;
+double max_y = 2;
+
+
+// berekening mandelbrotgetal
+int mandelbrotgetal(double x, double y)
+{
+    double afstand = 0;
+    int teller = 0;
+    double maxAantalHerhalingen = double.Parse(invoerMaxAantal.Text);
+
+    double a = 0;
+    double b = 0;
+
+    while (afstand < 2 && teller < maxAantalHerhalingen)
+    {
+        double xa = a * a - b * b + x;
+        double yb = 2 * a * b + y;
+
+        double pythagoras = Math.Pow(xa - 0, 2) + Math.Pow(yb - 0, 2);
+        afstand = Math.Sqrt(pythagoras);
+
+        a = xa;
+        b = yb;
+
+        teller = teller + 1;
+    }
+
+    return teller;
+
+}
+
+
+//berekening mandelbrot en pixelkleuren
+void mandelbrotplaatje(object o, EventArgs e)
+{
+    int maxAantalHerhalingen = int.Parse(invoerMaxAantal.Text);
+
+    double midden_x = Double.Parse(invoerMidden_x.Text);
+    double midden_y = Double.Parse(invoerMidden_y.Text);
+    double schaal = Double.Parse(invoerSchaal.Text);
+
+    min_x = midden_x - (2 * schaal);
+    max_x = midden_x + (2 * schaal);
+    min_y = midden_y - (2 * schaal);
+    max_y = midden_y + (2 * schaal);
+
+    for (int pixel_x = 0; pixel_x < bitmapBreedte; pixel_x++)
+    {
+
+        for (int pixel_y = 0; pixel_y < bitmapHoogte; pixel_y++)
+        {
+
+            double x = min_x + (pixel_x / (double)bitmapBreedte) * (max_x - min_x);
+            double y = min_y + (pixel_y / (double)bitmapHoogte) * (max_y - min_y);
+
+            int uitkomst = mandelbrotgetal(x, y);
+
+            
+            if (uitkomst % 2 == 0)
+                plaatje.SetPixel(pixel_x, pixel_y,  Color.White);
+            else
+                plaatje.SetPixel(pixel_x, pixel_y, Color.Black);
+        }
+
+        
+    }
+    scherm.Invalidate();
+
+};
+
+// daadwerkelijke tekening op bitmap
+void tekening(object o, PaintEventArgs pea)
+{
+    pea.Graphics.DrawImage(plaatje, 20, 175);
+}
+
+void zoom(object o, MouseEventArgs ea)
+{
+
+    if (ea.Button == MouseButtons.Left)
+    {
+        // fixen van offset veroorzaakt doordat je de bitmap tekent op (20,175)
+        int offsetx = 20;
+        int offsety = 175;
+
+        double zoom_x = min_x + ((ea.X - offsetx) / (double)bitmapBreedte) * (max_x - min_x);
+        double zoom_y = min_y + ((ea.Y - offsety) / (double)bitmapHoogte) * (max_y - min_y);
+
+        double zoomFactor = 0.5;
+
+        double nieuw_x = (max_x - min_x) * zoomFactor;
+        double nieuw_y = (max_y - min_y) * zoomFactor;
+
+        // nieuw bereik aanmaken voor zoom
+        min_x = zoom_x - nieuw_x / 2;
+        max_x = zoom_x + nieuw_x / 2;
+        min_y = zoom_y - nieuw_y / 2;
+        max_y = zoom_y + nieuw_y / 2;
+
+        //meeveranderen van waarden van midden x en y met 6 decimalen
+        double nieuwmidden_x = (min_x + max_x) / 2;
+        double nieuwmidden_y = (min_y + max_y) / 2;
+
+        invoerMidden_x.Text = nieuwmidden_x.ToString("F6");
+        invoerMidden_y.Text = nieuwmidden_y.ToString("F6");
+
+    }
+    mandelbrotplaatje(o, ea);
+}
+
+scherm.MouseClick += zoom;
+scherm.Paint += tekening;
+knop.Click += mandelbrotplaatje;
+Application.Run(scherm);
+
+public class Kleur
+{
+    public byte Rood, Groen, Blauw;
+    public static byte maximaal = 255;
+
+    public Kleur()
+    {
+        Rood = maximaal; Groen = maximaal; Blauw = maximaal;
+    }
+    public Kleur(byte x)
+    {
+        Rood = x; Groen = x; Blauw = x;
+    }
+    public Kleur(byte r, byte g, byte b)
+    {
+        Rood = r; Groen = g; Blauw = b;
+    }
+    public Kleur(Kleur orig)
+    {
+        Rood = orig.Rood; Groen = orig.Groen; Blauw = orig.Blauw;
+    }
+
+}
+
