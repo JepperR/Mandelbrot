@@ -195,11 +195,53 @@ void zoom(object o, MouseEventArgs ea)
         invoerMidden_x.Text = nieuwmidden_x.ToString("F6");
         invoerMidden_y.Text = nieuwmidden_y.ToString("F6");
 
+// nieuw invoer maken zodat click meerdere keer werkt
+        double nieuweSchaal = (max_x - min_x) / 4;
+        invoerSchaal.Text = nieuweSchaal.ToString("F6");
+
+    }
+    mandelbrotplaatje(o, ea);
+}
+
+void zoomOut(object o, MouseEventArgs ea)
+{
+
+    if (ea.Button == MouseButtons.Right)
+    {
+        // fixen van offset veroorzaakt doordat je de bitmap tekent op (20,175)
+        int offsetx = 20;
+        int offsety = 175;
+
+        double zoom_x = min_x + ((ea.X - offsetx) / (double)bitmapBreedte) * (max_x - min_x);
+        double zoom_y = min_y + ((ea.Y - offsety) / (double)bitmapHoogte) * (max_y - min_y);
+
+        double zoomFactor = 0.5;
+
+        double nieuw_x = (max_x - min_x) / zoomFactor;
+        double nieuw_y = (max_y - min_y) / zoomFactor;
+
+        // nieuw bereik aanmaken voor zoom
+        min_x = zoom_x - nieuw_x / 2;
+        max_x = zoom_x + nieuw_x / 2;
+        min_y = zoom_y - nieuw_y / 2;
+        max_y = zoom_y + nieuw_y / 2;
+
+        //meeveranderen van waarden van midden x en y met 6 decimalen
+        double nieuwmidden_x = (min_x + max_x) / 2;
+        double nieuwmidden_y = (min_y + max_y) / 2;
+
+        invoerMidden_x.Text = nieuwmidden_x.ToString("F6");
+        invoerMidden_y.Text = nieuwmidden_y.ToString("F6");
+
+        double nieuweSchaal = (max_x - min_x) / 4;
+        invoerSchaal.Text = nieuweSchaal.ToString("F6");
+
     }
     mandelbrotplaatje(o, ea);
 }
 
 scherm.MouseClick += zoom;
+scherm.MouseClick += zoomOut;
 scherm.Paint += tekening;
 knop.Click += mandelbrotplaatje;
 Application.Run(scherm);
