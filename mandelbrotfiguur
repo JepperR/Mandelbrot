@@ -93,7 +93,7 @@ invoerschuifgroen.Minimum = 0;
 invoerschuifgroen.Maximum = 255;
 invoerschuifgroen.Orientation = Orientation.Horizontal;
 
-invoerschuifblauw.Location = new Point(20, 330);
+invoerschuifblauw.Location = new Point(20, 340);
 schuifblauw.Text = "blauwwaarde:";
 invoerschuifblauw.Size = new Size(200, 20);
 invoerschuifblauw.Minimum = 0;
@@ -110,6 +110,12 @@ knop.Text = "Teken!";
 Bitmap plaatje = new Bitmap(720, 720);
 int bitmapHoogte = 720;
 int bitmapBreedte = 720;
+
+//globale waardes bij opstart
+invoerMidden_x.Text = "0";
+invoerMidden_y.Text = "0";
+invoerSchaal.Text = "0.01";
+invoerMaxAantal.Text = "100";
 
 
 
@@ -235,7 +241,7 @@ void zoom(object o, MouseEventArgs ea)
 
     if (ea.Button == MouseButtons.Left)
     {
-        // fixen van offset veroorzaakt doordat je de bitmap tekent op (20,175)
+        // fixen van offset veroorzaakt doordat je de bitmap tekent op (440,20)
         int offsetx = 440;
         int offsety = 20;
 
@@ -313,5 +319,9 @@ scherm.MouseClick += zoom;
 scherm.MouseClick += zoomOut;
 scherm.Paint += tekening;
 knop.Click += mandelbrotplaatje;
+
+mandelbrotplaatje(null, EventArgs.Empty);
+
+
 Application.Run(scherm);
 
