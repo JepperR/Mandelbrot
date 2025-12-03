@@ -11,10 +11,8 @@ using System.Globalization;
 
 
 Form scherm = new Form();
-scherm.ClientSize = new Size(640, 815);
+scherm.ClientSize = new Size(1200, 815);
 scherm.Text = "mandelbrot";
-int schermHoogte = 640;
-int schermBreedte = 815;
 
 
 //aanmaken tekst-invoervelden en bijbehorende labels
@@ -71,31 +69,31 @@ scherm.Controls.Add(invoerschuifblauw);
 
 Label schuifrood = new Label();
 scherm.Controls.Add(schuifrood);
-schuifrood.Location = new Point(350, 1);
+schuifrood.Location = new Point(20, 160);
 
 Label schuifgroen = new Label();
 scherm.Controls.Add(schuifgroen);
-schuifgroen.Location = new Point(350, 70);
+schuifgroen.Location = new Point(20, 240);
 
 Label schuifblauw = new Label();
 scherm.Controls.Add(schuifblauw);
-schuifblauw.Location = new Point(350, 140);
+schuifblauw.Location = new Point(20, 310);
 
-invoerschuifrood.Location = new Point(400, 18);
+invoerschuifrood.Location = new Point(20, 180);
 schuifrood.Text = "roodwaarde:";
 invoerschuifrood.Size = new Size(200, 20);
 invoerschuifrood.Minimum = 0;
 invoerschuifrood.Maximum = 255;
 invoerschuifrood.Orientation = Orientation.Horizontal;
 
-invoerschuifgroen.Location = new Point(400, 90);
+invoerschuifgroen.Location = new Point(20, 260);
 schuifgroen.Text = "groenwaarde:";
 invoerschuifgroen.Size = new Size(200, 20);
 invoerschuifgroen.Minimum = 0;
 invoerschuifgroen.Maximum = 255;
 invoerschuifgroen.Orientation = Orientation.Horizontal;
 
-invoerschuifblauw.Location = new Point(400, 160);
+invoerschuifblauw.Location = new Point(20, 330);
 schuifblauw.Text = "blauwwaarde:";
 invoerschuifblauw.Size = new Size(200, 20);
 invoerschuifblauw.Minimum = 0;
@@ -109,9 +107,9 @@ scherm.Controls.Add(knop);
 knop.Text = "Teken!";
 
 // aanmaken bitmap en grootte bepalen
-Bitmap plaatje = new Bitmap(600, 600);
-int bitmapHoogte = 600;
-int bitmapBreedte = 600;
+Bitmap plaatje = new Bitmap(720, 720);
+int bitmapHoogte = 720;
+int bitmapBreedte = 720;
 
 
 
@@ -229,7 +227,7 @@ void mandelbrotplaatje(object o, EventArgs e)
 // daadwerkelijke tekening op bitmap
 void tekening(object o, PaintEventArgs pea)
 {
-    pea.Graphics.DrawImage(plaatje, 20, 175);
+    pea.Graphics.DrawImage(plaatje, 440, 20);
 }
 
 void zoom(object o, MouseEventArgs ea)
@@ -238,8 +236,8 @@ void zoom(object o, MouseEventArgs ea)
     if (ea.Button == MouseButtons.Left)
     {
         // fixen van offset veroorzaakt doordat je de bitmap tekent op (20,175)
-        int offsetx = 20;
-        int offsety = 175;
+        int offsetx = 440;
+        int offsety = 20;
 
         double zoom_x = min_x + ((ea.X - offsetx) / (double)bitmapBreedte) * (max_x - min_x);
         double zoom_y = min_y + ((ea.Y - offsety) / (double)bitmapHoogte) * (max_y - min_y);
@@ -276,8 +274,8 @@ void zoomOut(object o, MouseEventArgs ea)
     if (ea.Button == MouseButtons.Right)
     {
         // fixen van offset veroorzaakt doordat je de bitmap tekent op (20,175)
-        int offsetx = 20;
-        int offsety = 175;
+        int offsetx = 440;
+        int offsety = 20;
 
         double zoom_x = min_x + ((ea.X - offsetx) / (double)bitmapBreedte) * (max_x - min_x);
         double zoom_y = min_y + ((ea.Y - offsety) / (double)bitmapHoogte) * (max_y - min_y);
