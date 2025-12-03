@@ -60,6 +60,48 @@ maxAantal.Location = new Point(20, 125);
 invoerMaxAantal.Location = new Point(120, 123);
 maxAantal.Text = "max aantal:";
 
+//aanmaken schuifbar voor rood, groen en blauw
+TrackBar invoerschuifrood = new TrackBar(); 
+TrackBar invoerschuifgroen = new TrackBar();
+TrackBar invoerschuifblauw = new TrackBar();
+
+scherm.Controls.Add(invoerschuifrood);
+scherm.Controls.Add(invoerschuifgroen);
+scherm.Controls.Add(invoerschuifblauw);
+
+Label schuifrood = new Label();
+scherm.Controls.Add(schuifrood);
+schuifrood.Location = new Point(350, 1);
+
+Label schuifgroen = new Label();
+scherm.Controls.Add(schuifgroen);
+schuifgroen.Location = new Point(350, 70);
+
+Label schuifblauw = new Label();
+scherm.Controls.Add(schuifblauw);
+schuifblauw.Location = new Point(350, 140);
+
+invoerschuifrood.Location = new Point(400, 18);
+schuifrood.Text = "roodwaarde:";
+invoerschuifrood.Size = new Size(200, 20);
+invoerschuifrood.Minimum = 0;
+invoerschuifrood.Maximum = 255;
+invoerschuifrood.Orientation = Orientation.Horizontal;
+
+invoerschuifgroen.Location = new Point(400, 90);
+schuifgroen.Text = "groenwaarde:";
+invoerschuifgroen.Size = new Size(200, 20);
+invoerschuifgroen.Minimum = 0;
+invoerschuifgroen.Maximum = 255;
+invoerschuifgroen.Orientation = Orientation.Horizontal;
+
+invoerschuifblauw.Location = new Point(400, 160);
+schuifblauw.Text = "blauwwaarde:";
+invoerschuifblauw.Size = new Size(200, 20);
+invoerschuifblauw.Minimum = 0;
+invoerschuifblauw.Maximum = 255;
+invoerschuifblauw.Orientation = Orientation.Horizontal;
+
 // knop voor tekenen
 Button knop = new Button();
 knop.Location = new Point(260, 121);
@@ -71,18 +113,6 @@ Bitmap plaatje = new Bitmap(600, 600);
 int bitmapHoogte = 600;
 int bitmapBreedte = 600;
 
-//Kleurtjes!
-Kleur geel = new Kleur(Kleur.maximaal, Kleur.maximaal, 0);
-Kleur oranje = new Kleur(Kleur.maximaal, 128, 0);
-Kleur rood = new Kleur(Kleur.maximaal, 0,0);
-Kleur blauw = new Kleur(0, 0, Kleur.maximaal);
-Kleur groen = new Kleur(0, Kleur.maximaal, 0);
-Kleur indigo = new Kleur(75, 0, 130);
-Kleur paars = new Kleur(143, 0, 255);
-Kleur wit = new Kleur(0,0,0);
-Kleur zwart = new Kleur(Kleur.maximaal, Kleur.maximaal, Kleur.maximaal);
-
-//tijdelijke waardes
 
 
 // globale minimale en maximale waardes
@@ -120,6 +150,44 @@ int mandelbrotgetal(double x, double y)
 
 }
 
+void veranderschuif(object o, EventArgs ea)
+{
+    mandelbrotplaatje(o, ea);
+}
+
+//kleurtjes!
+Color[] kleuren = new Color[]
+{
+    Color.Blue,
+    Color.Green,
+    Color.Yellow,
+    Color.Orange,
+    Color.Red,
+    Color.Purple
+};
+Color InterpoleerKleur(int iteratie, int maxIteraties)
+{
+    double t = (double)iteratie / double.Parse(invoerMaxAantal.Text);
+    int index1 = (int)(t * (kleuren.Length - 1));
+    int index2 = Math.Min(index1 + 1, kleuren.Length - 1);
+
+    double fractie = t * (kleuren.Length - 1) - index1;
+
+    int rood = invoerschuifrood.Value;
+    int groen = invoerschuifgroen.Value;
+    int blauw = invoerschuifblauw.Value;
+
+    int r = Math.Min(255, kleuren[index1].R + (int)(fractie * (kleuren[index2].R - kleuren[index1].R)) + invoerschuifrood.Value);
+    int g = Math.Min(255, kleuren[index1].G + (int)(fractie * (kleuren[index2].G - kleuren[index1].G)) + invoerschuifgroen.Value);
+    int b = Math.Min(255, kleuren[index1].B + (int)(fractie * (kleuren[index2].B - kleuren[index1].B)) + invoerschuifblauw.Value);
+
+
+    return Color.FromArgb(r, g, b);
+}
+
+
+
+
 
 //berekening mandelbrot en pixelkleuren
 void mandelbrotplaatje(object o, EventArgs e)
@@ -146,18 +214,17 @@ void mandelbrotplaatje(object o, EventArgs e)
 
             int uitkomst = mandelbrotgetal(x, y);
 
-            
-            if (uitkomst % 2 == 0)
-                plaatje.SetPixel(pixel_x, pixel_y,  Color.White);
-            else
-                plaatje.SetPixel(pixel_x, pixel_y, Color.Black);
+            Color kleur = InterpoleerKleur(uitkomst, maxAantalHerhalingen);
+            plaatje.SetPixel(pixel_x, pixel_y, kleur);
+           
         }
 
-        
+
     }
     scherm.Invalidate();
 
-};
+}
+;
 
 // daadwerkelijke tekening op bitmap
 void tekening(object o, PaintEventArgs pea)
@@ -195,7 +262,7 @@ void zoom(object o, MouseEventArgs ea)
         invoerMidden_x.Text = nieuwmidden_x.ToString("F6");
         invoerMidden_y.Text = nieuwmidden_y.ToString("F6");
 
-// nieuw invoer maken zodat click meerdere keer werkt
+        // nieuw invoer maken zodat click meerdere keer werkt
         double nieuweSchaal = (max_x - min_x) / 4;
         invoerSchaal.Text = nieuweSchaal.ToString("F6");
 
@@ -240,33 +307,13 @@ void zoomOut(object o, MouseEventArgs ea)
     mandelbrotplaatje(o, ea);
 }
 
+
+invoerschuifrood.Scroll += veranderschuif;
+invoerschuifgroen.Scroll += veranderschuif;
+invoerschuifblauw.Scroll += veranderschuif;
 scherm.MouseClick += zoom;
 scherm.MouseClick += zoomOut;
 scherm.Paint += tekening;
 knop.Click += mandelbrotplaatje;
 Application.Run(scherm);
-
-public class Kleur
-{
-    public byte Rood, Groen, Blauw;
-    public static byte maximaal = 255;
-
-    public Kleur()
-    {
-        Rood = maximaal; Groen = maximaal; Blauw = maximaal;
-    }
-    public Kleur(byte x)
-    {
-        Rood = x; Groen = x; Blauw = x;
-    }
-    public Kleur(byte r, byte g, byte b)
-    {
-        Rood = r; Groen = g; Blauw = b;
-    }
-    public Kleur(Kleur orig)
-    {
-        Rood = orig.Rood; Groen = orig.Groen; Blauw = orig.Blauw;
-    }
-
-}
 
