@@ -1,3 +1,4 @@
+
 using System;
 using System.Windows.Forms;
 using System.Drawing;
@@ -7,14 +8,11 @@ using System.ComponentModel.DataAnnotations;
 using System.Drawing.Text;
 using System.Globalization;
 
-
-
 Form scherm = new Form();
 scherm.ClientSize = new Size(1200, 815);
 scherm.Text = "mandelbrot";
 
 //label aanmaken voor foutmelding
-
 Label foutmelding = new Label();
 foutmelding.Location = new Point(260, 160);
 foutmelding.Text = "";
@@ -127,25 +125,25 @@ Button voorbeeld_1 = new Button();
 voorbeeld_1.Location = new Point(20, 450);
 voorbeeld_1.Size = new Size(100, 100);
 scherm.Controls.Add(voorbeeld_1);
-voorbeeld_1.Text = "Voorbeeld 1:";
+voorbeeld_1.Text = "Voorbeeld 1";
 
 Button voorbeeld_2 = new Button();
 voorbeeld_2.Location = new Point(140, 450);
 voorbeeld_2.Size = new Size(100, 100);
 scherm.Controls.Add(voorbeeld_2);
-voorbeeld_2.Text = "Voorbeeld 2:";
+voorbeeld_2.Text = "Voorbeeld 2";
 
 Button voorbeeld_3 = new Button();
 voorbeeld_3.Location = new Point(20, 570);
 voorbeeld_3.Size = new Size(100, 100);
 scherm.Controls.Add(voorbeeld_3);
-voorbeeld_3.Text = "Voorbeeld 3:";
+voorbeeld_3.Text = "Voorbeeld 3";
 
 Button voorbeeld_4 = new Button();
 voorbeeld_4.Location = new Point(140, 570);
 voorbeeld_4.Size = new Size(100, 100);
 scherm.Controls.Add(voorbeeld_4);
-voorbeeld_4.Text = "Voorbeeld 4:";
+voorbeeld_4.Text = "Voorbeeld 4";
 
 // aanmaken bitmap en grootte bepalen
 Bitmap plaatje = new Bitmap(720, 720);
@@ -174,7 +172,6 @@ double max_x = 2;
 double min_y = -2;
 double max_y = 2;
 
-
 // berekening mandelbrotgetal
 int mandelbrotgetal(double x, double y)
 {
@@ -198,11 +195,8 @@ int mandelbrotgetal(double x, double y)
 
         teller = teller + 1;
     }
-
     return teller;
-
 }
-
 
 //kleurtjes!
 Color[] kleuren = new Color[]
@@ -229,7 +223,6 @@ Color InterpoleerKleur(int iteratie, int maxIteraties)
     int r = Math.Min(255, kleuren[index1].R + (int)(fractie * (kleuren[index2].R - kleuren[index1].R)) + invoerschuifrood.Value);
     int g = Math.Min(255, kleuren[index1].G + (int)(fractie * (kleuren[index2].G - kleuren[index1].G)) + invoerschuifgroen.Value);
     int b = Math.Min(255, kleuren[index1].B + (int)(fractie * (kleuren[index2].B - kleuren[index1].B)) + invoerschuifblauw.Value);
-
 
     return Color.FromArgb(r, g, b);
 }
@@ -285,7 +278,6 @@ void mandelbrotplaatje(object o, EventArgs e)
             plaatje.SetPixel(pixel_x, pixel_y, kleur);
 
         }
-
         void veranderschuif(object o, EventArgs ea)
         {
             mandelbrotplaatje(o, ea);
@@ -293,10 +285,8 @@ void mandelbrotplaatje(object o, EventArgs e)
             invoerschuifgroen.Scroll += veranderschuif;
             invoerschuifblauw.Scroll += veranderschuif;
         }
-
     }
     mandel.Invalidate();
-
 }
 ;
 
@@ -369,15 +359,12 @@ void voorbeeld_4_tekenen(object o, EventArgs ea)
 //inzoomen
 void zoom(object o, MouseEventArgs ea)
 {
-
     if (ea.Button == MouseButtons.Left)
     {
-        // fixen van offset veroorzaakt doordat je de bitmap tekent op (440,20)
-        int offsetx = 0;
-        int offsety = 0;
+     
 
-        double zoom_x = min_x + ((ea.X - offsetx) / (double)bitmapBreedte) * (max_x - min_x);
-        double zoom_y = min_y + ((ea.Y - offsety) / (double)bitmapHoogte) * (max_y - min_y);
+        double zoom_x = min_x + ((ea.X) / (double)bitmapBreedte) * (max_x - min_x);
+        double zoom_y = min_y + ((ea.Y) / (double)bitmapHoogte) * (max_y - min_y);
 
         double zoomFactorInzoomen = 1 / double.Parse(invoerZoomFactor.Text);
 
@@ -400,7 +387,6 @@ void zoom(object o, MouseEventArgs ea)
         // nieuw invoer maken zodat click meerdere keer werkt
         double nieuweSchaal = (max_x - min_x) / 4;
         invoerSchaal.Text = nieuweSchaal.ToString("F6");
-
     }
     mandelbrotplaatje(o, ea);
 }
@@ -408,15 +394,10 @@ void zoom(object o, MouseEventArgs ea)
 //uitzoomen
 void zoomOut(object o, MouseEventArgs ea)
 {
-
     if (ea.Button == MouseButtons.Right)
-    {
-        // fixen van offset veroorzaakt doordat je de bitmap tekent op (440,20)
-        int offsetx = 0;
-        int offsety = 0;
-
-        double zoom_x = min_x + ((ea.X - offsetx) / (double)bitmapBreedte) * (max_x - min_x);
-        double zoom_y = min_y + ((ea.Y - offsety) / (double)bitmapHoogte) * (max_y - min_y);
+    { 
+        double zoom_x = min_x + ((ea.X) / (double)bitmapBreedte) * (max_x - min_x);
+        double zoom_y = min_y + ((ea.Y) / (double)bitmapHoogte) * (max_y - min_y);
 
         double zoomFactorUitzoomen = 1 / Double.Parse(invoerZoomFactor.Text);
 
@@ -438,12 +419,9 @@ void zoomOut(object o, MouseEventArgs ea)
 
         double nieuweSchaal = (max_x - min_x) / 4;
         invoerSchaal.Text = nieuweSchaal.ToString("F6");
-
     }
     mandelbrotplaatje(o, ea);
 }
-
-
 
 // exception catch voor verandering kleur
 invoerMidden_x.TextChanged += boxVeranderd;
@@ -451,8 +429,6 @@ invoerMidden_y.TextChanged += boxVeranderd;
 invoerMaxAantal.TextChanged += boxVeranderd;
 invoerZoomFactor.TextChanged += boxVeranderd;
 invoerSchaal.TextChanged += boxVeranderd;
-
-// exception catch geen waarde
 
 //aanroep functies
 mandel.MouseClick += zoom;
