@@ -1,5 +1,6 @@
 
 
+
 using System;
 using System.Windows.Forms;
 using System.Drawing;
@@ -300,7 +301,7 @@ void zoomOut(object o, MouseEventArgs ea)
         double zoom_x = min_x + ((ea.X - offsetx) / (double)bitmapBreedte) * (max_x - min_x);
         double zoom_y = min_y + ((ea.Y - offsety) / (double)bitmapHoogte) * (max_y - min_y);
 
-        double zoomFactorUitzoomen = Double.Parse(invoerZoomFactor.Text);
+        double zoomFactorUitzoomen = 1 / Double.Parse(invoerZoomFactor.Text);
 
         double nieuw_x = (max_x - min_x) / zoomFactorUitzoomen;
         double nieuw_y = (max_y - min_y) / zoomFactorUitzoomen;
