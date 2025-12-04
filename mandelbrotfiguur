@@ -1,4 +1,3 @@
-
 using System;
 using System.Windows.Forms;
 using System.Drawing;
@@ -28,6 +27,8 @@ TextBox invoerSchaal = new TextBox();
 Label maxAantal = new Label();
 TextBox invoerMaxAantal = new TextBox();
 
+Label zoomFactor = new Label();
+TextBox invoerZoomFactor = new TextBox();
 
 scherm.Controls.Add(midden_x);
 scherm.Controls.Add(invoerMidden_x);
@@ -40,6 +41,9 @@ scherm.Controls.Add(invoerSchaal);
 
 scherm.Controls.Add(maxAantal);
 scherm.Controls.Add(invoerMaxAantal);
+
+scherm.Controls.Add(zoomFactor);
+scherm.Controls.Add(invoerZoomFactor);
 
 // toekennen van eigenschappen aan tekst-invoervelden en bijbehorende labels
 midden_x.Location = new Point(20, 20);
@@ -58,8 +62,12 @@ maxAantal.Location = new Point(20, 125);
 invoerMaxAantal.Location = new Point(120, 123);
 maxAantal.Text = "max aantal:";
 
+zoomFactor.Location = new Point(20, 160);
+invoerZoomFactor.Location = new Point(120, 158);
+zoomFactor.Text = "zoomfactor:";
+
 //aanmaken schuifbar voor rood, groen en blauw
-TrackBar invoerschuifrood = new TrackBar(); 
+TrackBar invoerschuifrood = new TrackBar();
 TrackBar invoerschuifgroen = new TrackBar();
 TrackBar invoerschuifblauw = new TrackBar();
 
@@ -69,31 +77,31 @@ scherm.Controls.Add(invoerschuifblauw);
 
 Label schuifrood = new Label();
 scherm.Controls.Add(schuifrood);
-schuifrood.Location = new Point(20, 160);
+schuifrood.Location = new Point(20, 200);
 
 Label schuifgroen = new Label();
 scherm.Controls.Add(schuifgroen);
-schuifgroen.Location = new Point(20, 240);
+schuifgroen.Location = new Point(20, 280);
 
 Label schuifblauw = new Label();
 scherm.Controls.Add(schuifblauw);
-schuifblauw.Location = new Point(20, 310);
+schuifblauw.Location = new Point(20, 360);
 
-invoerschuifrood.Location = new Point(20, 180);
+invoerschuifrood.Location = new Point(20, 220);
 schuifrood.Text = "roodwaarde:";
 invoerschuifrood.Size = new Size(200, 20);
 invoerschuifrood.Minimum = 0;
 invoerschuifrood.Maximum = 255;
 invoerschuifrood.Orientation = Orientation.Horizontal;
 
-invoerschuifgroen.Location = new Point(20, 260);
+invoerschuifgroen.Location = new Point(20, 300);
 schuifgroen.Text = "groenwaarde:";
 invoerschuifgroen.Size = new Size(200, 20);
 invoerschuifgroen.Minimum = 0;
 invoerschuifgroen.Maximum = 255;
 invoerschuifgroen.Orientation = Orientation.Horizontal;
 
-invoerschuifblauw.Location = new Point(20, 340);
+invoerschuifblauw.Location = new Point(20, 380);
 schuifblauw.Text = "blauwwaarde:";
 invoerschuifblauw.Size = new Size(200, 20);
 invoerschuifblauw.Minimum = 0;
@@ -102,7 +110,7 @@ invoerschuifblauw.Orientation = Orientation.Horizontal;
 
 // knop voor tekenen
 Button knop = new Button();
-knop.Location = new Point(260, 121);
+knop.Location = new Point(260, 160);
 scherm.Controls.Add(knop);
 knop.Text = "Teken!";
 
@@ -112,10 +120,11 @@ int bitmapHoogte = 720;
 int bitmapBreedte = 720;
 
 //globale waardes bij opstart
-invoerMidden_x.Text = "0";
+invoerMidden_x.Text = "-0,5";
 invoerMidden_y.Text = "0";
 invoerSchaal.Text = "0.01";
 invoerMaxAantal.Text = "100";
+invoerZoomFactor.Text = "2";
 
 
 
@@ -154,10 +163,6 @@ int mandelbrotgetal(double x, double y)
 
 }
 
-void veranderschuif(object o, EventArgs ea)
-{
-    mandelbrotplaatje(o, ea);
-}
 
 //kleurtjes!
 Color[] kleuren = new Color[]
@@ -191,8 +196,6 @@ Color InterpoleerKleur(int iteratie, int maxIteraties)
 
 
 
-
-
 //berekening mandelbrot en pixelkleuren
 void mandelbrotplaatje(object o, EventArgs e)
 {
@@ -220,9 +223,16 @@ void mandelbrotplaatje(object o, EventArgs e)
 
             Color kleur = InterpoleerKleur(uitkomst, maxAantalHerhalingen);
             plaatje.SetPixel(pixel_x, pixel_y, kleur);
-           
+
         }
 
+        void veranderschuif(object o, EventArgs ea)
+        {
+            mandelbrotplaatje(o, ea);
+            invoerschuifrood.Scroll += veranderschuif;
+            invoerschuifgroen.Scroll += veranderschuif;
+            invoerschuifblauw.Scroll += veranderschuif;
+        }
 
     }
     scherm.Invalidate();
@@ -248,10 +258,10 @@ void zoom(object o, MouseEventArgs ea)
         double zoom_x = min_x + ((ea.X - offsetx) / (double)bitmapBreedte) * (max_x - min_x);
         double zoom_y = min_y + ((ea.Y - offsety) / (double)bitmapHoogte) * (max_y - min_y);
 
-        double zoomFactor = 0.5;
+        double ingevoerdeZoomFactor = 1 / double.Parse(invoerZoomFactor.Text);
 
-        double nieuw_x = (max_x - min_x) * zoomFactor;
-        double nieuw_y = (max_y - min_y) * zoomFactor;
+        double nieuw_x = (max_x - min_x) * ingevoerdeZoomFactor;
+        double nieuw_y = (max_y - min_y) * ingevoerdeZoomFactor;
 
         // nieuw bereik aanmaken voor zoom
         min_x = zoom_x - nieuw_x / 2;
@@ -279,17 +289,17 @@ void zoomOut(object o, MouseEventArgs ea)
 
     if (ea.Button == MouseButtons.Right)
     {
-        // fixen van offset veroorzaakt doordat je de bitmap tekent op (20,175)
+        // fixen van offset veroorzaakt doordat je de bitmap tekent op (440,20)
         int offsetx = 440;
         int offsety = 20;
 
         double zoom_x = min_x + ((ea.X - offsetx) / (double)bitmapBreedte) * (max_x - min_x);
         double zoom_y = min_y + ((ea.Y - offsety) / (double)bitmapHoogte) * (max_y - min_y);
 
-        double zoomFactor = 0.5;
+        double ingevoerdeZoomFactor = 1 / double.Parse(invoerZoomFactor.Text);
 
-        double nieuw_x = (max_x - min_x) / zoomFactor;
-        double nieuw_y = (max_y - min_y) / zoomFactor;
+        double nieuw_x = (max_x - min_x) / ingevoerdeZoomFactor;
+        double nieuw_y = (max_y - min_y) / ingevoerdeZoomFactor;
 
         // nieuw bereik aanmaken voor zoom
         min_x = zoom_x - nieuw_x / 2;
@@ -311,10 +321,6 @@ void zoomOut(object o, MouseEventArgs ea)
     mandelbrotplaatje(o, ea);
 }
 
-
-invoerschuifrood.Scroll += veranderschuif;
-invoerschuifgroen.Scroll += veranderschuif;
-invoerschuifblauw.Scroll += veranderschuif;
 scherm.MouseClick += zoom;
 scherm.MouseClick += zoomOut;
 scherm.Paint += tekening;
@@ -322,6 +328,4 @@ knop.Click += mandelbrotplaatje;
 
 mandelbrotplaatje(null, EventArgs.Empty);
 
-
 Application.Run(scherm);
-
